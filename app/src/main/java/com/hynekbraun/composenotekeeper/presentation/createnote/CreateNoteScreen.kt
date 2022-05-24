@@ -2,10 +2,10 @@ package com.hynekbraun.composenotekeeper.presentation.createnote
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hynekbraun.composenotekeeper.R
 import com.hynekbraun.composenotekeeper.presentation.composable.ColorPallet
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun CreateNoteScreen(
@@ -25,15 +26,33 @@ fun CreateNoteScreen(
     val note by remember {
         viewModel.state
     }
-
     val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(key1 = 1) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is CreateNoteViewModel.CreateNoteUiEvent.SaveNote -> {
+                    onSaveClicked()
+                }
+                is CreateNoteViewModel.CreateNoteUiEvent.ShowErrorSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+                is CreateNoteViewModel.CreateNoteUiEvent.ShowWrongInputSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+            }
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     viewModel.onEvent(CreateNoteEvent.SaveNote)
-                    onSaveClicked()
-
                 },
                 backgroundColor = MaterialTheme.colors.primary
             ) {

@@ -6,10 +6,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hynekbraun.composenotekeeper.data.NoteRepositoryImp
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,6 +24,9 @@ class CreateNoteViewModel
 
     private val _state = mutableStateOf(CreateNoteState())
     val state: State<CreateNoteState> get() = _state
+
+    private val _eventFlow = MutableSharedFlow<CreateNoteUiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     fun onEvent(event: CreateNoteEvent) {
         when (event) {
@@ -43,20 +47,43 @@ class CreateNoteViewModel
             }
             is CreateNoteEvent.SaveNote -> {
                 viewModelScope.launch {
-                    if (state.value.header.isNotBlank() && state.value.content.isNotBlank())
-                        repository.insertNote(
-                            NoteModel(
-                                id = 0,
-                                header = state.value.header,
-                                content = state.value.content,
-                                date = formatDate(),
-                                color = state.value.color
+                    if (state.value.header.isNotBlank()) {
+                        try {
+                            repository.insertNote(
+                                NoteModel(
+                                    id = 0,
+                                    header = state.value.header,
+                                    content = state.value.content,
+                                    date = formatDate(),
+                                    color = state.value.color
+                                )
+                            )
+                            _eventFlow.emit(CreateNoteUiEvent.SaveNote)
+                        } catch (e: Throwable) {
+                            _eventFlow.emit(
+                                CreateNoteUiEvent.ShowErrorSnackbar(
+                                    message = e.localizedMessage ?: "Could not save note"
+                                )
+                            )
+                        }
+                    } else {
+                        _eventFlow.emit(
+                            CreateNoteUiEvent.ShowWrongInputSnackbar(
+                                message = "Please fill in the header"
                             )
                         )
+                    }
                     Log.d("TAG", "CreateNoteVM: Saved note: ${state.value.header}")
                 }
             }
+
         }
+    }
+
+    sealed class CreateNoteUiEvent {
+        data class ShowErrorSnackbar(val message: String) : CreateNoteUiEvent()
+        data class ShowWrongInputSnackbar(val message: String) : CreateNoteUiEvent()
+        object SaveNote : CreateNoteUiEvent()
     }
 
     @SuppressLint("SimpleDateFormat")

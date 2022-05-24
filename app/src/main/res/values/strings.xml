@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Compose Note Keeper</string>
-    <string name="NoteDetail_contentLabel">Write your message</string>
+    <string name="noteDetail_contentLabel">Write your message</string>
     <string name="noteDetail_iconDesc_save">Save Button</string>
+
+
     <string name="general_message">Message…</string>
     <string name="general_header">Header</string>
+    <string name="createNote_saveError">Could not save message</string>
 </resources>

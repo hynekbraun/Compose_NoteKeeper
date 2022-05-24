@@ -6,11 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hynekbraun.composenotekeeper.data.NoteRepositoryImp
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
 import com.hynekbraun.composenotekeeper.presentation.navigation.NoteNavArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,6 +26,9 @@ class EditNoteViewModel
 
     private val _note = mutableStateOf(EditNoteState())
     val note: State<EditNoteState> get() = _note
+
+    private val _eventFlow = MutableSharedFlow<EditNoteUiEvent>()
+    val eventFlow get() = _eventFlow.asSharedFlow()
 
     private var currentNoteId: Int? = null
 
@@ -56,22 +60,42 @@ class EditNoteViewModel
             }
             EditNoteEvent.UpdateNote -> {
                 viewModelScope.launch {
-                    try {
-                        repository.updateNote(
-                            NoteModel(
-                                header = _note.value.header,
-                                content = _note.value.content,
-                                color = _note.value.color,
-                                id = currentNoteId!!,
-                                date = formatDate()
+                    if (note.value.header.isNotBlank()) {
+                        try {
+                            repository.updateNote(
+                                NoteModel(
+                                    header = _note.value.header,
+                                    content = _note.value.content,
+                                    color = _note.value.color,
+                                    id = currentNoteId!!,
+                                    date = formatDate()
+                                )
+                            )
+                            _eventFlow.emit(EditNoteUiEvent.EditNote)
+                        } catch (e: Throwable) {
+                            _eventFlow.emit(
+                                EditNoteUiEvent.ShowErrorSnackbar(
+                                    e.localizedMessage ?: "Could not save note"
+                                )
+                            )
+                        }
+                    } else {
+                        _eventFlow.emit(
+                            EditNoteUiEvent.ShowInoutSnackbar(
+                                message = "Please fill in the header"
+
                             )
                         )
-                    } catch (e: Throwable) {
-                        //Show SnackBar
                     }
                 }
             }
         }
+    }
+
+    sealed class EditNoteUiEvent {
+        data class ShowErrorSnackbar(val message: String) : EditNoteUiEvent()
+        data class ShowInoutSnackbar(val message: String) : EditNoteUiEvent()
+        object EditNote : EditNoteUiEvent()
     }
 
     @SuppressLint("SimpleDateFormat")

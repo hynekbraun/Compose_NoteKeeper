@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import  androidx.lifecycle.viewmodel.compose.viewModel
 import com.hynekbraun.composenotekeeper.R
 import com.hynekbraun.composenotekeeper.presentation.composable.ColorPallet
-import com.hynekbraun.composenotekeeper.presentation.createnote.CreateNoteEvent
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun EditNoteScreen(
@@ -23,13 +24,32 @@ fun EditNoteScreen(
 ) {
     val note by viewModel.note
     val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(key1 = 1) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is EditNoteViewModel.EditNoteUiEvent.EditNote -> {
+                    onEditClick()
+                }
+                is EditNoteViewModel.EditNoteUiEvent.ShowErrorSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+                is EditNoteViewModel.EditNoteUiEvent.ShowInoutSnackbar -> {
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+            }
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     viewModel.onEvent(EditNoteEvent.UpdateNote)
-                    onEditClick()
-
                 },
                 backgroundColor = MaterialTheme.colors.primary
             ) {

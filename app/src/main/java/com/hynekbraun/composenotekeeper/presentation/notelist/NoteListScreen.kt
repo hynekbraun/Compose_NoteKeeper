@@ -1,5 +1,6 @@
 package com.hynekbraun.composenotekeeper.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
 import com.hynekbraun.composenotekeeper.ui.theme.BackgroundRed
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun NoteListScreen(
     viewModel: NoteListViewModel = viewModel(),
@@ -42,7 +44,8 @@ fun NoteListScreen(
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(scaffoldState = scaffoldState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -61,11 +64,12 @@ fun NoteListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(6.dp)
+                .padding(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = CenterVertically
             ) {
                 Text(text = stringResource(id = R.string.app_name))
                 IconButton(onClick = { viewModel.onEvent(NoteListEvent.OnSortToggle) }) {
@@ -87,10 +91,13 @@ fun NoteListScreen(
                     noteOrder = state.noteOrder,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(6.dp)
                 )
             }
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(4.dp)
+            ) {
                 items(state.notes) { note ->
                     NoteLayout(
                         modifier = Modifier
@@ -106,23 +113,21 @@ fun NoteListScreen(
 
 @Composable
 fun NoteLayout(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     note: NoteModel,
     onNoteClick: (id: Int) -> Unit
 ) {
 
     Column(
         modifier = modifier
-            .padding(6.dp)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.small)
             .background(color = Color(note.color))
-            .padding(6.dp)
+            .padding(8.dp)
             .clickable { onNoteClick(note.id) }
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -135,17 +140,16 @@ fun NoteLayout(
         }
         Spacer(
             modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp)
-                .background(color = Color.DarkGray)
                 .fillMaxWidth()
+                .padding(4.dp)
                 .height(1.dp)
+                .background(color = Color.DarkGray)
                 .clip(MaterialTheme.shapes.large)
         )
         Text(
             text = note.content,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp),
+                .fillMaxWidth(),
             maxLines = 5,
             overflow = TextOverflow.Ellipsis,
         )
@@ -231,4 +235,5 @@ fun DefaultRadioButton(
         Text(text = text, style = MaterialTheme.typography.body1)
     }
 }
+
 

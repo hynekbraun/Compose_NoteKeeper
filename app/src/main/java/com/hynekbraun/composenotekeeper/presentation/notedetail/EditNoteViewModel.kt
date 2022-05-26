@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 import javax.inject.Inject
 
@@ -101,6 +103,6 @@ class EditNoteViewModel
     @SuppressLint("SimpleDateFormat")
     private fun formatDate(): String {
         val sdf = SimpleDateFormat("yy/MM/dd hh:mm")
-        return sdf.format(Date())
+        return sdf.format(System.currentTimeMillis())
     }
 }

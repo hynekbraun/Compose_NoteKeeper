@@ -15,15 +15,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.hynekbraun.composenotekeeper.R
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListEvent
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListViewModel
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
+import com.hynekbraun.composenotekeeper.ui.theme.BackgroundRed
 
 @Composable
 fun NoteListScreen(
@@ -104,6 +110,7 @@ fun NoteLayout(
     note: NoteModel,
     onNoteClick: (id: Int) -> Unit
 ) {
+
     Column(
         modifier = modifier
             .padding(6.dp)
@@ -113,7 +120,9 @@ fun NoteLayout(
             .clickable { onNoteClick(note.id) }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -126,7 +135,7 @@ fun NoteLayout(
         }
         Spacer(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(start = 10.dp, end = 10.dp)
                 .background(color = Color.DarkGray)
                 .fillMaxWidth()
                 .height(1.dp)
@@ -134,7 +143,9 @@ fun NoteLayout(
         )
         Text(
             text = note.content,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp),
             maxLines = 5,
             overflow = TextOverflow.Ellipsis,
         )
@@ -148,10 +159,12 @@ fun OrderSection(
     onOrderChange: (NoteOrder) -> Unit
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
+        horizontalAlignment = CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             DefaultRadioButton(
                 text = "Title",
@@ -173,7 +186,8 @@ fun OrderSection(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             DefaultRadioButton(
                 text = "Ascending",
@@ -203,7 +217,7 @@ fun DefaultRadioButton(
 ) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = CenterVertically
     ) {
         RadioButton(
             selected = selected,
@@ -217,3 +231,4 @@ fun DefaultRadioButton(
         Text(text = text, style = MaterialTheme.typography.body1)
     }
 }
+

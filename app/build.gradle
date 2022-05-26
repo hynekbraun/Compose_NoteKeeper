@@ -19,6 +19,13 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+
+
     }
 
     buildTypes {
@@ -48,6 +55,9 @@ android {
 }
 
 dependencies {
+    // System Ui Controller
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.17.0"
+
     // Navigation
     def NAVIGATION = "2.4.2"
     implementation "androidx.navigation:navigation-compose:$NAVIGATION"

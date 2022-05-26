@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 
-@Entity
+@Entity(tableName = "note_table")
 data class NoteEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,

@@ -7,4 +7,5 @@
     <string name="general_message">Message…</string>
     <string name="general_header">Header</string>
     <string name="createNote_saveError">Could not save message</string>
+    <string name="noteList_iconDesc_sort">Sort options</string>
 </resources>

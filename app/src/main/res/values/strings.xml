@@ -8,4 +8,5 @@
     <string name="general_header">Header</string>
     <string name="createNote_saveError">Could not save message</string>
     <string name="noteList_iconDesc_sort">Sort options</string>
+    <string name="noteList_imageDesc_deleteNote">Delete note</string>
 </resources>

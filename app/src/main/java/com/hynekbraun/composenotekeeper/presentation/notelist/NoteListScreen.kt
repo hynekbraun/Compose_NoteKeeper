@@ -13,9 +13,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.draw.clip
@@ -101,9 +103,13 @@ fun NoteListScreen(
                 items(state.notes) { note ->
                     NoteLayout(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxWidth()
+                            .fillParentMaxHeight(0.2f),
                         note,
-                        onNoteClick = onNoteClick
+                        onNoteClick = onNoteClick,
+                        onDeleteClicked = {
+                            viewModel.onEvent(NoteListEvent.DeleteNote(it))
+                        }
                     )
                 }
             }
@@ -115,44 +121,61 @@ fun NoteListScreen(
 fun NoteLayout(
     modifier: Modifier = Modifier,
     note: NoteModel,
-    onNoteClick: (id: Int) -> Unit
+    onNoteClick: (id: Int) -> Unit,
+    onDeleteClicked: (note: NoteModel) -> Unit
 ) {
 
-    Column(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.small)
-            .background(color = Color(note.color))
-            .padding(8.dp)
-            .clickable { onNoteClick(note.id) }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    Box(modifier = modifier) {
+        Column(
+            modifier = modifier
+                .clip(MaterialTheme.shapes.small)
+                .background(color = Color(note.color))
+                .padding(8.dp)
+                .clickable { onNoteClick(note.id) }
         ) {
-            Text(
-                text = note.header,
-                modifier = Modifier.fillMaxWidth(0.6f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = note.header,
+                    modifier = Modifier.fillMaxWidth(0.6f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(text = note.date)
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                    .height(1.dp)
+                    .background(color = Color.DarkGray)
+                    .clip(MaterialTheme.shapes.large)
             )
-            Text(text = note.date)
+            Text(
+                text = note.content,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                overflow = TextOverflow.Ellipsis,
+            )
         }
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-                .height(1.dp)
-                .background(color = Color.DarkGray)
-                .clip(MaterialTheme.shapes.large)
-        )
-        Text(
-            text = note.content,
-            modifier = Modifier
-                .fillMaxWidth(),
-            maxLines = 5,
-            overflow = TextOverflow.Ellipsis,
-        )
+        IconButton(
+            modifier = Modifier.align(BottomEnd)
+                .clip(CircleShape)
+                .background(Color(note.color)),
+            onClick = { onDeleteClicked(note) }) {
+            Icon(
+                painter = painterResource(
+                    id = R.drawable.ic_delete
+                ),
+                contentDescription = stringResource(
+                    R.string.noteList_imageDesc_deleteNote
+                )
+            )
+        }
+
     }
 }
 

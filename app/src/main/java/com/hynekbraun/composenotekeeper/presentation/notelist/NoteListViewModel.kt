@@ -9,6 +9,7 @@ import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -57,6 +58,7 @@ class NoteListViewModel
 
     private fun deleteNote(note: NoteModel) {
         viewModelScope.launch {
+            delay(500L)
             repository.deleteNote(note)
         }
     }

@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.hynekbraun.composenotekeeper.R
+import com.hynekbraun.composenotekeeper.presentation.composable.noRippleClickable
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListEvent
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListViewModel
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
@@ -48,6 +49,7 @@ fun NoteListScreen(
     Scaffold(scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize(),
+        floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -131,7 +133,7 @@ fun NoteLayout(
                 .clip(MaterialTheme.shapes.small)
                 .background(color = Color(note.color))
                 .padding(8.dp)
-                .clickable { onNoteClick(note.id) }
+                .noRippleClickable { onNoteClick(note.id) }
         ) {
             Row(
                 modifier = Modifier
@@ -162,7 +164,8 @@ fun NoteLayout(
             )
         }
         IconButton(
-            modifier = Modifier.align(BottomEnd)
+            modifier = Modifier
+                .align(BottomEnd)
                 .clip(CircleShape)
                 .background(Color(note.color)),
             onClick = { onDeleteClicked(note) }) {

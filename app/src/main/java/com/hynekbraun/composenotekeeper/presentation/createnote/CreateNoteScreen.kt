@@ -1,5 +1,6 @@
 package com.hynekbraun.composenotekeeper.presentation.createnote
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -18,6 +19,7 @@ import com.hynekbraun.composenotekeeper.R
 import com.hynekbraun.composenotekeeper.presentation.composable.ColorPallet
 import kotlinx.coroutines.flow.collectLatest
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun CreateNoteScreen(
     viewModel: CreateNoteViewModel = viewModel(),

@@ -7,5 +7,6 @@ sealed class NoteListEvent {
     data class DeleteNote(val note: NoteModel) : NoteListEvent()
     object OnSortToggle : NoteListEvent()
     data class ChangeOrder(val noteOrder: NoteOrder) : NoteListEvent()
+    object OnRestoreNote: NoteListEvent()
 
 }

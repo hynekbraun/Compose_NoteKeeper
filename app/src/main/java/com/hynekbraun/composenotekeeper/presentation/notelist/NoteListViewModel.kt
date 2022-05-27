@@ -6,13 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
+import com.hynekbraun.composenotekeeper.presentation.createnote.CreateNoteViewModel
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +24,8 @@ class NoteListViewModel
 
     private var getNotesJob: Job? = null
 
+    private var lastDeletedNote: NoteModel? = null
+
     init {
         loadNotes()
     }
@@ -32,6 +33,7 @@ class NoteListViewModel
     fun onEvent(event: NoteListEvent) {
         when (event) {
             is NoteListEvent.DeleteNote -> {
+                lastDeletedNote = event.note
                 deleteNote(event.note)
             }
             is NoteListEvent.OnSortToggle -> {
@@ -44,6 +46,12 @@ class NoteListViewModel
                     return
                 }
                 getNotes(event.noteOrder)
+            }
+            NoteListEvent.OnRestoreNote -> {
+                viewModelScope.launch {
+                    repository.insertNote(lastDeletedNote ?: return@launch)
+                    lastDeletedNote = null
+                }
             }
         }
     }
@@ -75,3 +83,4 @@ class NoteListViewModel
             .launchIn(viewModelScope)
     }
 }
+

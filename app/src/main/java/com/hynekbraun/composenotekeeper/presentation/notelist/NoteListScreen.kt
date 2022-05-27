@@ -15,7 +15,9 @@ import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -34,6 +36,9 @@ import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListViewModel
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
 import com.hynekbraun.composenotekeeper.ui.theme.BackgroundRed
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -45,6 +50,8 @@ fun NoteListScreen(
 ) {
     val state by viewModel.state
     val scaffoldState = rememberScaffoldState()
+
+    val scope = rememberCoroutineScope()
 
     Scaffold(scaffoldState = scaffoldState,
         modifier = Modifier
@@ -111,6 +118,18 @@ fun NoteListScreen(
                         onNoteClick = onNoteClick,
                         onDeleteClicked = {
                             viewModel.onEvent(NoteListEvent.DeleteNote(it))
+                            scope.launch {
+                                val event = scaffoldState
+                                    .snackbarHostState
+                                    .showSnackbar(
+                                        message = "Are you sure?",
+                                        actionLabel = "Undo"
+                                    )
+                                if (event == SnackbarResult.ActionPerformed) {
+                                    viewModel.onEvent(NoteListEvent.OnRestoreNote)
+                                }
+                            }
+
                         }
                     )
                 }

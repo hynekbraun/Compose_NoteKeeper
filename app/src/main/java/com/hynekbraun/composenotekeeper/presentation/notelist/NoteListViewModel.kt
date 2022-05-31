@@ -1,5 +1,6 @@
 package com.hynekbraun.composenotekeeper.presentation.notelist
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -40,11 +41,11 @@ class NoteListViewModel
                 _state.value = state.value.copy(showSelection = !state.value.showSelection)
             }
             is NoteListEvent.ChangeOrder -> {
-                if (state.value.noteOrder::class == event.noteOrder::class &&
-                    state.value.noteOrder.orderType == event.noteOrder.orderType
-                ) {
+                Log.d("ORDER", "ViewModel ChangeOrder event ${_state.value.noteOrder}")
+                if (state.value.noteOrder == event.noteOrder) {
                     return
                 }
+                _state.value = state.value.copy(noteOrder = event.noteOrder)
                 getNotes(event.noteOrder)
             }
             NoteListEvent.OnRestoreNote -> {
@@ -58,7 +59,7 @@ class NoteListViewModel
 
     private fun loadNotes() {
         viewModelScope.launch {
-            repository.getNoteList().collect { notes ->
+            repository.getNoteList(_state.value.noteOrder).collect { notes ->
                 _state.value = state.value.copy(notes = notes)
             }
         }
@@ -73,6 +74,7 @@ class NoteListViewModel
 
     private fun getNotes(noteOrder: NoteOrder) {
         getNotesJob?.cancel()
+        Log.d("ORDER", "ViewModel: Current order: ${_state.value.noteOrder}")
         getNotesJob = repository.getNoteList(noteOrder = _state.value.noteOrder)
             .onEach { notes ->
                 _state.value = state.value.copy(

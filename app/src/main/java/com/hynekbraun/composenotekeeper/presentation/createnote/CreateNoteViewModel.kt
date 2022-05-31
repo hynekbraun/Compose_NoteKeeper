@@ -73,7 +73,7 @@ class CreateNoteViewModel
                             )
                         )
                     }
-                    Log.d("TAG", "CreateNoteVM: Saved note: ${state.value.header}")
+                    Log.d("ORDER", "CreateNoteVM: Saved note: ${state.value.header}")
                 }
             }
 

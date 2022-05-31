@@ -102,7 +102,7 @@ class EditNoteViewModel
 
     @SuppressLint("SimpleDateFormat")
     private fun formatDate(): String {
-        val sdf = SimpleDateFormat("yy/MM/dd hh:mm")
+        val sdf = SimpleDateFormat("yy/MM/dd hh:mm a")
         return sdf.format(System.currentTimeMillis())
     }
 }

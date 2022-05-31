@@ -1,15 +1,27 @@
 package com.hynekbraun.composenotekeeper.presentation.notelist.util
 
-sealed class NoteOrder(val orderType: OrderType) {
-    class Header(orderType: OrderType): NoteOrder(orderType)
-    class Date(orderType: OrderType): NoteOrder(orderType)
-    class Color(orderType: OrderType): NoteOrder(orderType)
+//sealed class NoteOrder(val orderType: OrderType) {
+//    class Header(orderType: OrderType): NoteOrder(orderType)
+//    class Date(orderType: OrderType): NoteOrder(orderType)
+//    class Color(orderType: OrderType): NoteOrder(orderType)
+//
+//    fun copy(orderType: OrderType): NoteOrder {
+//        return when(this) {
+//            is Header -> Header(orderType)
+//            is Date -> Date(orderType)
+//            is Color -> Color(orderType)
+//        }
+//    }
+//}
 
-    fun copy(orderType: OrderType): NoteOrder {
-        return when(this) {
-            is Header -> Header(orderType)
-            is Date -> Date(orderType)
-            is Color -> Color(orderType)
-        }
-    }
+data class NoteOrder(
+    val orderType: OrderType,
+    val orderAscendance: OrderAscendance
+)
+
+enum class OrderType{
+    DATE, HEADER, COLOR
+}
+enum class OrderAscendance{
+    ASCENDING, DESCENDING
 }

@@ -1,11 +1,13 @@
 package com.hynekbraun.composenotekeeper.data
 
+import android.util.Log
 import com.hynekbraun.composenotekeeper.data.local.NoteDAO
 import com.hynekbraun.composenotekeeper.data.model.toModel
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.model.toEntity
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
+import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderAscendance
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,22 +16,30 @@ class NoteRepositoryImp(private val dao: NoteDAO) : NoteRepository {
     override fun getNoteList(
         noteOrder: NoteOrder
     ): Flow<List<NoteModel>> {
-        val notesList: Flow<List<NoteModel>> = dao.getNotes().map { it.map { it.toModel() } }
-        return notesList.map { notes ->
-            when (noteOrder.orderType) {
-                is OrderType.Ascending -> {
-                    when (noteOrder) {
-                        is NoteOrder.Header -> notes.sortedBy { it.header.lowercase() }
-                        is NoteOrder.Date -> notes.sortedBy { it.date }
-                        is NoteOrder.Color -> notes.sortedBy { it.color }
-                    }
+        val notesList: Flow<List<NoteModel>> =
+            dao.getNotes().map { list ->
+                list.map { note ->
+                    note.toModel()
                 }
-                is OrderType.Descending -> {
-                    when (noteOrder) {
-                        is NoteOrder.Header -> notes.sortedByDescending { it.header.lowercase() }
-                        is NoteOrder.Date -> notes.sortedByDescending { it.date }
-                        is NoteOrder.Color -> notes.sortedByDescending { it.color }
-                    }
+            }
+        return notesList.map { notes ->
+            Log.d("ORDER", "Repository - $noteOrder")
+            when (noteOrder) {
+                NoteOrder(OrderType.HEADER, OrderAscendance.ASCENDING) ->
+                    notes.sortedBy { it.header.lowercase().trim() }
+                NoteOrder(OrderType.DATE, OrderAscendance.ASCENDING) ->
+                    notes.sortedBy { it.date }
+                NoteOrder(OrderType.COLOR, OrderAscendance.ASCENDING) ->
+                    notes.sortedBy { it.color }
+                NoteOrder(OrderType.HEADER, OrderAscendance.DESCENDING) ->
+                    notes.sortedByDescending { it.header }
+                NoteOrder(OrderType.DATE, OrderAscendance.DESCENDING) ->
+                    notes.sortedByDescending { it.date }
+                NoteOrder(OrderType.COLOR, OrderAscendance.DESCENDING) ->
+                    notes.sortedByDescending { it.color }
+                else -> {
+                    Log.d("ORDER", "repository: Random order")
+                    notes
                 }
             }
         }

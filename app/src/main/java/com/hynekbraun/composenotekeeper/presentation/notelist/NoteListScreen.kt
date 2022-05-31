@@ -33,7 +33,9 @@ import com.hynekbraun.composenotekeeper.R
 import com.hynekbraun.composenotekeeper.presentation.composable.noRippleClickable
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListEvent
 import com.hynekbraun.composenotekeeper.presentation.notelist.NoteListViewModel
+import com.hynekbraun.composenotekeeper.presentation.notelist.composable.OrderSection
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
+import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderAscendance
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
 import com.hynekbraun.composenotekeeper.ui.theme.BackgroundRed
 import kotlinx.coroutines.coroutineScope
@@ -98,8 +100,8 @@ fun NoteListScreen(
                 exit = fadeOut() + slideOutVertically()
             ) {
                 OrderSection(
-                    onOrderChange = { viewModel.onEvent(NoteListEvent.ChangeOrder(it)) },
                     noteOrder = state.noteOrder,
+                    onOrderChange = { viewModel.onEvent(NoteListEvent.ChangeOrder(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                 )
@@ -200,85 +202,3 @@ fun NoteLayout(
 
     }
 }
-
-@Composable
-fun OrderSection(
-    modifier: Modifier = Modifier,
-    noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending),
-    onOrderChange: (NoteOrder) -> Unit
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            DefaultRadioButton(
-                text = "Title",
-                selected = noteOrder is NoteOrder.Header,
-                onSelect = { onOrderChange(NoteOrder.Header(noteOrder.orderType)) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            DefaultRadioButton(
-                text = "Date",
-                selected = noteOrder is NoteOrder.Date,
-                onSelect = { onOrderChange(NoteOrder.Date(noteOrder.orderType)) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            DefaultRadioButton(
-                text = "Color",
-                selected = noteOrder is NoteOrder.Color,
-                onSelect = { onOrderChange(NoteOrder.Color(noteOrder.orderType)) }
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            DefaultRadioButton(
-                text = "Ascending",
-                selected = noteOrder.orderType is OrderType.Ascending,
-                onSelect = {
-                    onOrderChange(noteOrder.copy(OrderType.Ascending))
-                }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            DefaultRadioButton(
-                text = "Descending",
-                selected = noteOrder.orderType is OrderType.Descending,
-                onSelect = {
-                    onOrderChange(noteOrder.copy(OrderType.Descending))
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun DefaultRadioButton(
-    text: String,
-    selected: Boolean,
-    onSelect: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = CenterVertically
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = onSelect,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colors.primary,
-                unselectedColor = MaterialTheme.colors.onBackground
-            )
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text, style = MaterialTheme.typography.body1)
-    }
-}
-
-

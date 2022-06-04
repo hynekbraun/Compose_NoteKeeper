@@ -27,8 +27,10 @@ class NoteListViewModel
 
     private var lastDeletedNote: NoteModel? = null
 
+    val query = mutableStateOf("")
+
     init {
-        loadNotes()
+        getNotes()
     }
 
     fun onEvent(event: NoteListEvent) {
@@ -46,21 +48,13 @@ class NoteListViewModel
                     return
                 }
                 _state.value = state.value.copy(noteOrder = event.noteOrder)
-                getNotes(event.noteOrder)
+                getNotes()
             }
             NoteListEvent.OnRestoreNote -> {
                 viewModelScope.launch {
                     repository.insertNote(lastDeletedNote ?: return@launch)
                     lastDeletedNote = null
                 }
-            }
-        }
-    }
-
-    private fun loadNotes() {
-        viewModelScope.launch {
-            repository.getNoteList(_state.value.noteOrder).collect { notes ->
-                _state.value = state.value.copy(notes = notes)
             }
         }
     }
@@ -72,14 +66,14 @@ class NoteListViewModel
         }
     }
 
-    private fun getNotes(noteOrder: NoteOrder) {
+    private fun getNotes() {
         getNotesJob?.cancel()
         Log.d("ORDER", "ViewModel: Current order: ${_state.value.noteOrder}")
         getNotesJob = repository.getNoteList(noteOrder = _state.value.noteOrder)
             .onEach { notes ->
                 _state.value = state.value.copy(
                     notes = notes,
-                    noteOrder = noteOrder
+                    noteOrder = _state.value.noteOrder
                 )
             }
             .launchIn(viewModelScope)

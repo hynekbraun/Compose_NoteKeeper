@@ -81,7 +81,7 @@ fun NoteListScreen(
             CustomSearchBar(
                 modifier = Modifier.fillMaxWidth(),
                 onQueryChanged = { query = it },
-                query = query,
+                query = viewModel.query.value,
                 showClearButton = false,
                 onClearClick = { query = "" },
                 onSortToggleClicked = {viewModel.onEvent(NoteListEvent.OnSortToggle)}

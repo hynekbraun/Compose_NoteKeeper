@@ -19,4 +19,6 @@ interface NoteRepository {
     suspend fun insertNote(note: NoteModel)
 
     suspend fun updateNote(note: NoteModel)
+
+     fun searchNotes(query: String): Flow<List<NoteModel>>
 }

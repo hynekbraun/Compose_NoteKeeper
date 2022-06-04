@@ -54,10 +54,6 @@ fun NoteListScreen(
 
     val scope = rememberCoroutineScope()
 
-    var query by remember {
-        mutableStateOf("")
-    }
-
     Scaffold(scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
@@ -80,11 +76,11 @@ fun NoteListScreen(
         topBar = {
             CustomSearchBar(
                 modifier = Modifier.fillMaxWidth(),
-                onQueryChanged = { query = it },
+                onQueryChanged = { viewModel.onEvent(NoteListEvent.onQueryChanged(it)) },
                 query = viewModel.query.value,
                 showClearButton = false,
-                onClearClick = { query = "" },
-                onSortToggleClicked = {viewModel.onEvent(NoteListEvent.OnSortToggle)}
+                onClearClick = { },
+                onSortToggleClicked = { viewModel.onEvent(NoteListEvent.OnSortToggle) }
             )
         }
     ) {
@@ -153,6 +149,7 @@ fun CustomSearchBar(
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(0.8f),
+            maxLines = 1,
             value = query,
             onValueChange = { onQueryChanged(it) },
             placeholder = {

@@ -10,6 +10,7 @@ import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderAscendance
 import com.hynekbraun.composenotekeeper.presentation.notelist.util.OrderType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class NoteRepositoryImp(private val dao: NoteDAO) : NoteRepository {
@@ -59,5 +60,10 @@ class NoteRepositoryImp(private val dao: NoteDAO) : NoteRepository {
 
     override suspend fun updateNote(note: NoteModel) {
         dao.updateNote(note.toEntity())
+    }
+
+    override fun searchNotes(query: String): Flow<List<NoteModel>> {
+        Log.d("SEARCH", "Repository: Search for $query")
+        return dao.searchRecipes(query).map { it.map { note -> note.toModel() } }
     }
 }

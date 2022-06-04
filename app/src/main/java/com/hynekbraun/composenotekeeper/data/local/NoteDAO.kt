@@ -21,4 +21,8 @@ interface NoteDAO {
 
     @Update
     suspend fun updateNote(note: NoteEntity)
+
+    @Query("SELECT * FROM note_table WHERE header LIKE '%' || :query || '%' ORDER BY header DESC")
+    fun searchRecipes(query: String): Flow<List<NoteEntity>>
+
 }

@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
-import com.hynekbraun.composenotekeeper.presentation.createnote.CreateNoteViewModel
-import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -50,11 +48,17 @@ class NoteListViewModel
                 _state.value = state.value.copy(noteOrder = event.noteOrder)
                 getNotes()
             }
-            NoteListEvent.OnRestoreNote -> {
+            is NoteListEvent.OnRestoreNote -> {
                 viewModelScope.launch {
                     repository.insertNote(lastDeletedNote ?: return@launch)
                     lastDeletedNote = null
                 }
+            }
+            is NoteListEvent.onQueryChanged -> {
+                Log.d("SEARCH", "ViewModel onQueryChangedEvent start ${event.query}")
+                query.value = event.query
+                Log.d("SEARCH", "ViewModel onQueryChangedEvent start $query")
+                searchNotes()
             }
         }
     }
@@ -74,6 +78,18 @@ class NoteListViewModel
                 _state.value = state.value.copy(
                     notes = notes,
                     noteOrder = _state.value.noteOrder
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun searchNotes() {
+        Log.d("SEARCH", "ViewModel: Search query: $query")
+        repository.searchNotes(query = query.value)
+            .onEach { notes ->
+                Log.d("SEARCH", "ViewModel: List size fetched: ${notes.size}")
+                _state.value = state.value.copy(
+                    notes = notes
                 )
             }
             .launchIn(viewModelScope)

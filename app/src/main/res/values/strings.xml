@@ -9,4 +9,6 @@
     <string name="createNote_saveError">Could not save message</string>
     <string name="noteList_iconDesc_sort">Sort options</string>
     <string name="noteList_imageDesc_deleteNote">Delete note</string>
+    <string name="appbar_clear_search_description">Clear Icon</string>
+    <string name="appbar_search_icon_description">Search icon</string>
 </resources>

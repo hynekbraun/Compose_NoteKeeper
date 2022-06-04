@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -16,9 +15,7 @@ import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -57,6 +54,10 @@ fun NoteListScreen(
 
     val scope = rememberCoroutineScope()
 
+    var query by remember {
+        mutableStateOf("")
+    }
+
     Scaffold(scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
@@ -77,21 +78,14 @@ fun NoteListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         topBar = {
-            Row(
+            CustomSearchBar(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = CenterVertically
-            ) {
-                Text(text = stringResource(id = R.string.app_name))
-                IconButton(onClick = { viewModel.onEvent(NoteListEvent.OnSortToggle) }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_sort),
-                        contentDescription = stringResource(
-                            R.string.noteList_iconDesc_sort
-                        )
-                    )
-                }
-            }
+                onQueryChanged = { query = it },
+                query = query,
+                showClearButton = false,
+                onClearClick = { query = "" },
+                onSortToggleClicked = {viewModel.onEvent(NoteListEvent.OnSortToggle)}
+            )
         }
     ) {
         Column(
@@ -140,5 +134,74 @@ fun NoteListScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CustomSearchBar(
+    modifier: Modifier = Modifier,
+    onQueryChanged: (String) -> Unit,
+    query: String,
+    showClearButton: Boolean,
+    onClearClick: () -> Unit,
+    onSortToggleClicked: () -> Unit
+
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(0.8f),
+            value = query,
+            onValueChange = { onQueryChanged(it) },
+            placeholder = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_search),
+                    contentDescription = stringResource(
+                        R.string.appbar_search_icon_description
+                    )
+                )
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = showClearButton,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    IconButton(onClick = { onClearClick() }) {
+                        Icon(
+                            painter = painterResource(
+                                id = R.drawable.ic_clear
+                            ),
+                            contentDescription = stringResource(R.string.appbar_clear_search_description)
+                        )
+                    }
+                }
+            })
+        IconButton(onClick = { onSortToggleClicked() }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_sort),
+                contentDescription = stringResource(
+                    R.string.noteList_iconDesc_sort
+                )
+            )
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun PreviewSearchBar() {
+    Surface {
+        CustomSearchBar(
+            modifier = Modifier.fillMaxWidth(),
+            onQueryChanged = {},
+            query = "",
+            showClearButton = false,
+            onSortToggleClicked = {},
+            onClearClick = {}
+        )
     }
 }

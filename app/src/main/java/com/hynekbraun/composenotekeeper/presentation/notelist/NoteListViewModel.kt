@@ -54,11 +54,15 @@ class NoteListViewModel
                     lastDeletedNote = null
                 }
             }
-            is NoteListEvent.onQueryChanged -> {
+            is NoteListEvent.OnQueryChanged -> {
                 Log.d("SEARCH", "ViewModel onQueryChangedEvent start ${event.query}")
                 query.value = event.query
                 Log.d("SEARCH", "ViewModel onQueryChangedEvent start $query")
                 searchNotes()
+            }
+            NoteListEvent.OnClearClicked -> {
+                query.value = ""
+                getNotes()
             }
         }
     }

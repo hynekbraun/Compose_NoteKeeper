@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hynekbraun.composenotekeeper.domain.model.NoteModel
 import com.hynekbraun.composenotekeeper.domain.repository.NoteRepository
-import com.hynekbraun.composenotekeeper.presentation.createnote.CreateNoteViewModel
-import com.hynekbraun.composenotekeeper.presentation.notelist.util.NoteOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -27,8 +25,10 @@ class NoteListViewModel
 
     private var lastDeletedNote: NoteModel? = null
 
+    val query = mutableStateOf("")
+
     init {
-        loadNotes()
+        getNotes()
     }
 
     fun onEvent(event: NoteListEvent) {
@@ -46,21 +46,23 @@ class NoteListViewModel
                     return
                 }
                 _state.value = state.value.copy(noteOrder = event.noteOrder)
-                getNotes(event.noteOrder)
+                getNotes()
             }
-            NoteListEvent.OnRestoreNote -> {
+            is NoteListEvent.OnRestoreNote -> {
                 viewModelScope.launch {
                     repository.insertNote(lastDeletedNote ?: return@launch)
                     lastDeletedNote = null
                 }
             }
-        }
-    }
-
-    private fun loadNotes() {
-        viewModelScope.launch {
-            repository.getNoteList(_state.value.noteOrder).collect { notes ->
-                _state.value = state.value.copy(notes = notes)
+            is NoteListEvent.OnQueryChanged -> {
+                Log.d("SEARCH", "ViewModel onQueryChangedEvent start ${event.query}")
+                query.value = event.query
+                Log.d("SEARCH", "ViewModel onQueryChangedEvent start $query")
+                searchNotes()
+            }
+            NoteListEvent.OnClearClicked -> {
+                query.value = ""
+                getNotes()
             }
         }
     }
@@ -72,14 +74,26 @@ class NoteListViewModel
         }
     }
 
-    private fun getNotes(noteOrder: NoteOrder) {
+    private fun getNotes() {
         getNotesJob?.cancel()
         Log.d("ORDER", "ViewModel: Current order: ${_state.value.noteOrder}")
         getNotesJob = repository.getNoteList(noteOrder = _state.value.noteOrder)
             .onEach { notes ->
                 _state.value = state.value.copy(
                     notes = notes,
-                    noteOrder = noteOrder
+                    noteOrder = _state.value.noteOrder
+                )
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun searchNotes() {
+        Log.d("SEARCH", "ViewModel: Search query: $query")
+        repository.searchNotes(query = query.value)
+            .onEach { notes ->
+                Log.d("SEARCH", "ViewModel: List size fetched: ${notes.size}")
+                _state.value = state.value.copy(
+                    notes = notes
                 )
             }
             .launchIn(viewModelScope)
